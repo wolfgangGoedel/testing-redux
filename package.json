@@ -1,0 +1,17 @@
+{
+  "name": "reduxobstests",
+  "private": true,
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "redux": "^4.0.1",
+    "redux-observable": "^1.1.0",
+    "rxjs": "^6.5.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "jest": "^24.8.0"
+  }
+}
