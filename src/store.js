@@ -1,12 +1,5 @@
 import { createStore, applyMiddleware } from "redux";
-import {
-  tap,
-  mergeMap,
-  map,
-  withLatestFrom,
-  catchError,
-  takeUntil
-} from "rxjs/operators";
+import { mergeMap, map, catchError, takeUntil } from "rxjs/operators";
 import { createEpicMiddleware, ofType } from "redux-observable";
 import { of } from "rxjs";
 

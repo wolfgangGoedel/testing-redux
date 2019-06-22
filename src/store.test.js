@@ -1,12 +1,11 @@
 import { makeStore, actions } from "./store";
 import { TestScheduler } from "rxjs/testing";
-import { of, from, queueScheduler, asyncScheduler } from "rxjs";
+
+let scheduler = new TestScheduler((actual, expected) => {
+  expect(actual).toEqual(expected);
+});
 
 describe("state", () => {
-  let scheduler = new TestScheduler((actual, expected) => {
-    expect(actual).toEqual(expected);
-  });
-
   test("state after success", () => {
     scheduler.run(({ cold, hot, flush }) => {
       const act = hot("a", { a: actions.doIt() });
@@ -42,11 +41,11 @@ describe("state", () => {
       const req = cold("----(a|)", { a: [1, 2, 3] });
 
       const store = makeStore(req);
+      const initialState = store.getState();
       act.subscribe(store.dispatch);
 
-      const state = store.getState();
       flush();
-      expect(store.getState()).toBe(state);
+      expect(store.getState()).toBe(initialState);
     });
   });
 });
