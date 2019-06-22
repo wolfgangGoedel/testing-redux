@@ -22,7 +22,7 @@ describe("state", () => {
   test("state after failure", () => {
     scheduler.run(({ cold, hot, flush }) => {
       const act = hot("a", { a: actions.doIt() });
-      const req = cold("---#");
+      const req = cold<number[]>("---#");
 
       const store = makeStore(req);
       act.subscribe(store.dispatch);

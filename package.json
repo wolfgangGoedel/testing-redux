@@ -12,6 +12,9 @@
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
-    "jest": "^24.8.0"
+    "@babel/preset-typescript": "^7.3.3",
+    "@types/jest": "^24.0.15",
+    "jest": "^24.8.0",
+    "typescript": "^3.5.2"
   }
 }
