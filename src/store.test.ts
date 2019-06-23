@@ -1,9 +1,12 @@
-import { makeStore, actions, Api, Action, State } from "./store";
-import { TestScheduler } from "rxjs/testing";
+import "symbol-observable";
+// need this for polyfill otherwise redux store is not recognised as obervable
+import { Store } from "redux";
 import { from } from "rxjs";
 import { skip, distinctUntilChanged } from "rxjs/operators";
+import { TestScheduler } from "rxjs/testing";
 import { RunHelpers } from "rxjs/internal/testing/TestScheduler";
-import { Store } from "redux";
+
+import { makeStore, actions, Api, Action, State } from "./store";
 
 describe("state", () => {
   let scheduler: TestScheduler;

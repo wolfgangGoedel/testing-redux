@@ -1,4 +1,6 @@
-import { createStore, applyMiddleware, Reducer } from "redux";
+import { createStore, applyMiddleware, Reducer, Store } from "redux";
+import { createEpicMiddleware, Epic } from "redux-observable";
+import { of, Observable } from "rxjs";
 import {
   map,
   catchError,
@@ -6,8 +8,6 @@ import {
   timeoutWith,
   switchMap
 } from "rxjs/operators";
-import { createEpicMiddleware, Epic } from "redux-observable";
-import { of, Observable } from "rxjs";
 
 export type Action =
   | { type: "REQUESTED"; id: string }
@@ -56,7 +56,7 @@ const reducer: Reducer<State, Action> = (state = { s: [] }, action) => {
   }
 };
 
-export const makeStore = (api: Api) => {
+export const makeStore = (api: Api): Store<State, Action> => {
   const epicMiddleware = createEpicMiddleware<Action, Action, State, Api>({
     dependencies: api
   });
