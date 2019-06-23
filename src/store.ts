@@ -10,28 +10,30 @@ import { createEpicMiddleware, Epic } from "redux-observable";
 import { of, Observable } from "rxjs";
 
 type Action =
-  | { type: "REQUESTED" }
-  | { type: "RECEIVED"; payload: number[] }
+  | { type: "REQUESTED"; id: string }
+  | { type: "RECEIVED"; response: number[] }
   | { type: "FAILED"; error: string }
   | { type: "CANCELED" };
 
 type State = { s: number[] } | { e: string };
 
-type Api = Observable<number[]>;
-
-export const actions = {
-  doIt: (): Action => ({ type: "REQUESTED" }),
-  done: (res: number[]): Action => ({ type: "RECEIVED", payload: res }),
-  failed: (err: string): Action => ({ type: "FAILED", error: err }),
-  cancel: (): Action => ({ type: "CANCELED" })
+type Api = {
+  request: (id: string) => Observable<number[]>;
 };
 
-const rootEpic: Epic<Action, Action, State, Api> = (action$, _state$, req) => {
-  return action$.ofType("REQUESTED").pipe(
-    mergeMap(() =>
-      req.pipe(
+export const actions = {
+  requested: (id: string): Action => ({ type: "REQUESTED", id }),
+  received: (response: number[]): Action => ({ type: "RECEIVED", response }),
+  failed: (error: string): Action => ({ type: "FAILED", error }),
+  canceled: (): Action => ({ type: "CANCELED" })
+};
+
+const rootEpic: Epic<Action, Action, State, Api> = (action$, _state$, api) => {
+  return action$.ofType<{ type: "REQUESTED"; id: string }>("REQUESTED").pipe(
+    mergeMap(({ id }) =>
+      api.request(id).pipe(
+        map(actions.received),
         takeUntil(action$.ofType("CANCELED")),
-        map(actions.done),
         timeoutWith(2000, of(actions.failed("timeout")))
       )
     ),
@@ -43,7 +45,7 @@ const reducer: Reducer<State, Action> = (state = { s: [] }, action) => {
   switch (action.type) {
     case "RECEIVED":
       return {
-        s: action.payload
+        s: action.response
       };
     case "FAILED":
       return {
@@ -54,9 +56,9 @@ const reducer: Reducer<State, Action> = (state = { s: [] }, action) => {
   }
 };
 
-export const makeStore = (req: Api) => {
+export const makeStore = (api: Api) => {
   const epicMiddleware = createEpicMiddleware<Action, Action, State, Api>({
-    dependencies: req
+    dependencies: api
   });
   const store = createStore(reducer, applyMiddleware(epicMiddleware));
 

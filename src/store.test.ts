@@ -14,10 +14,12 @@ describe("state", () => {
 
   test("after success", () => {
     scheduler.run(({ cold, hot, flush }) => {
-      const act = hot("a", { a: actions.doIt() });
-      const req = cold("---(a|)", { a: [1, 2, 3] });
+      const act = hot("a", { a: actions.requested("0") });
+      const api = {
+        request: () => cold("---(a|)", { a: [1, 2, 3] })
+      };
 
-      const store = makeStore(req);
+      const store = makeStore(api);
       act.subscribe(store.dispatch);
 
       flush();
@@ -27,10 +29,12 @@ describe("state", () => {
 
   test("after failure", () => {
     scheduler.run(({ cold, hot, flush }) => {
-      const act = hot("a", { a: actions.doIt() });
-      const req = cold<number[]>("---#");
+      const act = hot("a", { a: actions.requested("0") });
+      const api = {
+        request: () => cold<number[]>("---#")
+      };
 
-      const store = makeStore(req);
+      const store = makeStore(api);
       act.subscribe(store.dispatch);
 
       flush();
@@ -41,12 +45,14 @@ describe("state", () => {
   test("after cancel", () => {
     scheduler.run(({ cold, hot, flush }) => {
       const act = hot("a--b", {
-        a: actions.doIt(),
-        b: actions.cancel()
+        a: actions.requested("0"),
+        b: actions.canceled()
       });
-      const req = cold("----(a|)", { a: [1, 2, 3] });
+      const api = {
+        request: () => cold("----(a|)", { a: [1, 2, 3] })
+      };
 
-      const store = makeStore(req);
+      const store = makeStore(api);
       const initialState = store.getState();
       act.subscribe(store.dispatch);
 
@@ -57,10 +63,12 @@ describe("state", () => {
 
   test("after 2s timeout", () => {
     scheduler.run(({ cold, hot, expectObservable }) => {
-      const act = hot("a", { a: actions.doIt() });
-      const req = cold("3s (a|)", { a: [1, 2, 3] });
+      const act = hot("a", { a: actions.requested("0") });
+      const api = {
+        request: () => cold("3s (a|)", { a: [1, 2, 3] })
+      };
 
-      const store = makeStore(req);
+      const store = makeStore(api);
       act.subscribe(store.dispatch);
 
       const state$ = from(store as any).pipe(
