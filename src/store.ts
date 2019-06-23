@@ -1,5 +1,5 @@
 import { createStore, applyMiddleware, Reducer } from "redux";
-import { mergeMap, map, catchError, takeUntil } from "rxjs/operators";
+import { mergeMap, map, catchError, takeUntil, timeout } from "rxjs/operators";
 import { createEpicMiddleware, Epic } from "redux-observable";
 import { of, Observable } from "rxjs";
 
@@ -22,7 +22,12 @@ export const actions = {
 
 const rootEpic: Epic<Action, Action, State, Api> = (action$, _state$, req) => {
   return action$.ofType("DO_IT").pipe(
-    mergeMap(() => req.pipe(takeUntil(action$.ofType("CANCEL")))),
+    mergeMap(() =>
+      req.pipe(
+        takeUntil(action$.ofType("CANCEL")),
+        timeout(2000)
+      )
+    ),
     map(actions.done),
     catchError(_ => of(actions.failed()))
   );
