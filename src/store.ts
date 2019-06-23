@@ -1,23 +1,23 @@
 import { createStore, applyMiddleware, Reducer } from "redux";
 import {
-  mergeMap,
   map,
   catchError,
   takeUntil,
-  timeoutWith
+  timeoutWith,
+  switchMap
 } from "rxjs/operators";
 import { createEpicMiddleware, Epic } from "redux-observable";
 import { of, Observable } from "rxjs";
 
-type Action =
+export type Action =
   | { type: "REQUESTED"; id: string }
   | { type: "RECEIVED"; response: number[] }
   | { type: "FAILED"; error: string }
   | { type: "CANCELED" };
 
-type State = { s: number[] } | { e: string };
+export type State = { s: number[] } | { e: string };
 
-type Api = {
+export type Api = {
   request: (id: string) => Observable<number[]>;
 };
 
@@ -30,7 +30,7 @@ export const actions = {
 
 const rootEpic: Epic<Action, Action, State, Api> = (action$, _state$, api) => {
   return action$.ofType<{ type: "REQUESTED"; id: string }>("REQUESTED").pipe(
-    mergeMap(({ id }) =>
+    switchMap(({ id }) =>
       api.request(id).pipe(
         map(actions.received),
         takeUntil(action$.ofType("CANCELED")),
