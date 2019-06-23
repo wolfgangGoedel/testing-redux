@@ -69,7 +69,7 @@ describe("state", () => {
       );
 
       expectObservable(state$).toBe("2s e", {
-        e: { e: "request failed" }
+        e: { e: "timeout" }
       });
     });
   });
